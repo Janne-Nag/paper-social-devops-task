@@ -1,27 +1,20 @@
-resource "aws_instance" "web" {
-  ami           = var.ami_id
-  instance_type = "t2.micro"
-  tags = {
-    Name = "aws-web"
-  }
-
-  vpc_security_group_ids = [aws_security_group.sg.id]
+provider "aws" {
+  region = var.aws_region
 }
 
-resource "aws_security_group" "sg" {
-  name = "allow_web"
-
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+provider "ibm" {
+  ibmcloud_api_key = var.ibm_api_key
 }
+
+module "aws_vm" {
+  source      = "./modules/aws_vm"
+  instance_type = var.aws_instance_type
+  region        = var.aws_region
+}
+
+module "ibm_vm" {
+  source       = "./modules/ibm_vm"
+  instance_name = var.ibm_instance_name
+  region        = var.ibm_region
+}
+
