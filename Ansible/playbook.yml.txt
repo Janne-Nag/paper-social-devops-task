@@ -1,5 +1,7 @@
-- name: Configure AWS and IBM VMs
+- name: Setup VMs for app deployment
   hosts: all
-  become: true
+  become: yes
+
   roles:
     - setup
+
