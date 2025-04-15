@@ -1,0 +1,40 @@
+name: Deploy to AWS & IBM Cloud VMs
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy App to AWS & IBM
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Set up SSH Keys
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.AWS_SSH_KEY }}" > ~/.ssh/aws_key
+        echo "${{ secrets.IBM_SSH_KEY }}" > ~/.ssh/ibm_key
+        chmod 600 ~/.ssh/aws_key ~/.ssh/ibm_key
+
+    - name: Deploy to AWS VM
+      run: |
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/aws_key ubuntu@${{ secrets.AWS_VM_IP }} << 'EOF'
+        cd /home/ubuntu/multi-cloud-devops/app
+        git pull origin main
+        docker compose down || true
+        docker compose up -d --build
+        EOF
+
+    - name: Deploy to IBM VM
+      run: |
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/ibm_key root@${{ secrets.IBM_VM_IP }} << 'EOF'
+        cd /root/multi-cloud-devops/app
+        git pull origin main
+        docker compose down || true
+        docker compose up -d --build
+        EOF
