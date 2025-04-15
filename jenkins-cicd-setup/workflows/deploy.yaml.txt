@@ -1,0 +1,29 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build App
+        run: docker build -t myapp .
+
+      - name: Deploy to AWS
+        run: |
+          scp -i key.pem docker-compose.yml ubuntu@<aws_ip>:/home/ubuntu/
+          ssh -i key.pem ubuntu@<aws_ip> 'docker-compose up -d'
+
+      - name: Deploy to IBM
+        run: |
+          scp -i ibm_key.pem docker-compose.yml ubuntu@<ibm_ip>:/home/ubuntu/
+          ssh -i ibm_key.pem ubuntu@<ibm_ip> 'docker-compose up -d'

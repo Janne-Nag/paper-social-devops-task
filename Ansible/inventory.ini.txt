@@ -1,0 +1,5 @@
+[aws]
+aws-vm ansible_host=<AWS_VM_IP> ansible_user=ubuntu ansible_ssh_private_key_file=aws.pem
+
+[ibm]
+ibm-vm ansible_host=<IBM_VM_IP> ansible_user=ubuntu ansible_ssh_private_key_file=ibm.pem
